@@ -77,12 +77,16 @@ namespace MinecraftSharp.Classes.Network
                     netStream.ReadByte();
                     netStream.ReadByte();
 
-                    var response = new StatusResponse();
-                    response.Flush();
-                    netStream.Write(response.GetData());
-                    netStream.Flush();
+                    using (var response = new StatusResponse())
+                    {
+                        response.Flush();
+                        netStream.Write(response.GetData());
+                    }
 
-                    netStream.Dispose();
+
+                    byte[] bytes = new byte[10];
+                    netStream.Read(bytes);
+                    netStream.Write(bytes);
                 }
 
                 else if (packet.nextState == 2) // login
