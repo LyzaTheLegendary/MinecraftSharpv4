@@ -32,6 +32,14 @@ namespace Minecraft.Binary
 
             return Encoding.UTF8.GetString(buff);
         }
+        public static byte[] ReadLebPrefix(this Stream stream)
+        {
+            int len = stream.ReadLEB32();
+            byte[] bytes = new byte[len];
+            stream.Read(bytes, 0, len);
+
+            return bytes;
+        }
         public static void WriteLeb16(this Stream stream, ushort value)
         {
             byte[] data = BitConverter.GetBytes(value);
@@ -55,6 +63,11 @@ namespace Minecraft.Binary
             stream.WriteLeb32(value.Length);
             byte[] strBytes = Encoding.UTF8.GetBytes(value);
             stream.Write(strBytes, 0, strBytes.Length); // We check the size of the array as it's utf8
+        }
+        public static void WriteLebPrefix(this Stream stream, byte[] data)
+        {
+            stream.WriteLeb32(data.Length);
+            stream.Write(data, 0, data.Length);
         }
     }
 }

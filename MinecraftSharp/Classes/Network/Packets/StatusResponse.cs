@@ -21,13 +21,13 @@ namespace MinecraftSharp.Classes.Network.Packets
                     max = 100,
                     online = 5,
                     sample = new List<PlayerSampleInfo>
-                {
-                    new PlayerSampleInfo
                     {
-                        name = "Nathalie",
-                        id = "4566e69f-c907-48ee-8d71-d7ba5aa00d20"
+                        new PlayerSampleInfo
+                        {
+                            name = "Nathalie",
+                            id = "4566e69f-c907-48ee-8d71-d7ba5aa00d20"
+                        }
                     }
-                }
                 },
                 description = new DescriptionInfo
                 {
@@ -38,6 +38,7 @@ namespace MinecraftSharp.Classes.Network.Packets
                 previewsChat = true
             };
             this.WriteLebString(serverInfo.GetJson());
+            this.Flush();
         }
     }
 }

@@ -18,7 +18,7 @@ namespace MinecraftSharp.Classes.Network
 
         private static IdPool m_pool = new();
         //private static IdList m_connections = new();
-        private static ConcurrentDictionary<uint, TcpClient> m_connections = new();
+        private static ConcurrentDictionary<uint, ConnectionTag> m_connections = new();
         private static CancellationTokenSource m_cts = new();
         private static bool m_accepting = true;
 
@@ -52,24 +52,20 @@ namespace MinecraftSharp.Classes.Network
             }, m_cts.Token);
 
         }
-        public static void AddConnection(TcpClient client) 
-            => m_connections[(uint)client.Id] = client;
+        public static void AddConnection(ConnectionTag conn) 
+            => m_connections[(uint)conn.Id] = conn;
         public static void DelConnection(uint id)
             => m_connections.Remove(id, out _);
         private static void Accept(Socket remoteSock)
         {
-            //TcpClient client = new(remoteSock, m_pool.GetId());
             using (NetworkStream netStream = new NetworkStream(remoteSock, false))
-            {//client.GetStream();
+            {
 
                 //  We don't care about all this as we handle the client first in it's own Async context
                 _ = netStream.ReadLEB32(); // Size
                 _ = netStream.ReadLEB32(); // Id
 
-
                 HandShake packet = new(netStream);
-
-
 
                 if (packet.nextState == 1) // status update
                 {
@@ -77,29 +73,29 @@ namespace MinecraftSharp.Classes.Network
                     netStream.ReadByte();
                     netStream.ReadByte();
 
-                    using (var response = new StatusResponse())
-                    {
-                        response.Flush();
-                        netStream.Write(response.GetData());
-                    }
-
+                    netStream.Write(new StatusResponse().GetData());
 
                     byte[] bytes = new byte[10];
                     netStream.Read(bytes);
                     netStream.Write(bytes);
+
+                    remoteSock.Close();
+                    return;
                 }
 
                 else if (packet.nextState == 2) // login
                 {
-                    auth.Authenticate(new TcpClient(remoteSock, m_pool.GetId()));
-                    return;
+                    if (packet.protocol != (int)Settings.GetValue("server.protocol"))
+                    {
+                        netStream.Write(new KickResponse("Not implemented yet!").GetData());
+                        Thread.Sleep(100);
+                        remoteSock.Close();
+                        return;
+                    }
+                    
                 }
 
-                if (packet.protocol != (int)Settings.GetValue("server.protocol"))
-                {
-                    remoteSock.Close();
-                    return;
-                }
+                auth.PendAuthentication(new ConnectionTag(remoteSock, m_pool.GetId()));
             }
 
         }
