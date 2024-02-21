@@ -1,11 +1,29 @@
 ﻿using MinecraftSharp.Classes.Utils;
+using Newtonsoft.Json;
 
 namespace MinecraftSharp.Classes
 {
-    public class PlayerInfo : Identifiable
+    public struct Property
     {
-        public string m_username;
-        public PlayerInfo(Id id) : base(id) {}
-            
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("value")]
+        public string Value { get; set; }
+
+        [JsonProperty("signature")]
+        public string Signature { get; set; }
+    }
+
+    public struct PlayerProfile
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("properties")]
+        public Property[] Properties { get; set; }
     }
 }

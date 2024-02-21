@@ -1,5 +1,6 @@
 ﻿using Cryptography;
 using Minecraft.Binary;
+using MinecraftSharp.Classes.Cache;
 using MinecraftSharp.Classes.Display;
 using MinecraftSharp.Classes.Json;
 using MinecraftSharp.Classes.Network.Packets;
@@ -18,12 +19,13 @@ namespace MinecraftSharp.Classes.Network
     public class Authentication
     {
         private readonly BlockingCollection<ConnectionTag> m_queue = new BlockingCollection<ConnectionTag>();
+        private readonly PlayerCache m_playerCache;
         private readonly TaskPool m_taskPool;
         private readonly Task m_listener;
-        private readonly ConcurrentDictionary<uint, PlayerInfo> m_playerList = new();
         public Authentication(int threadCount)
         {
             m_taskPool = new TaskPool(threadCount);
+            m_playerCache = new PlayerCache("cache/players");
             m_listener = Task.Factory.StartNew(ListenLoop, TaskCreationOptions.LongRunning);
         }
         private void ListenLoop()
@@ -38,16 +40,16 @@ namespace MinecraftSharp.Classes.Network
         {
             using( Stream netStream = conn.GetStream() )
             {
+                
                 _ = netStream.ReadLEB32(); // size
                 _ = netStream.ReadLEB32(); // Id
 
-                PlayerInfo pinfo = new(conn.Id);
-                pinfo.m_username = netStream.ReadLEBStr();
+                string username = netStream.ReadLEBStr();
 
                 byte[] uuidBytes = new byte[16];
                 netStream.Read(uuidBytes, 0, 16);
 
-                if(!ValidateUuid(pinfo.m_username, uuidBytes))
+                if(!ValidateUuid(username, uuidBytes))
                 {
                     netStream.Write(new KickResponse("Reauthenticate, Invalid credentials!").GetData());
                     Thread.Sleep(100);
@@ -59,7 +61,7 @@ namespace MinecraftSharp.Classes.Network
 
                 if(aesKey == null) // if null the RSA failed
                 {
-                    ConsoleHelper.WriteInfo($"Rsa respones failed Autentication.GetKeyAndPrefx()");
+                    ConsoleHelper.WriteInfo($"Rsa test failed Autentication.GetKeyAndPrefx()");
                     conn.Drop();
                     return;
                 }
@@ -73,6 +75,11 @@ namespace MinecraftSharp.Classes.Network
                 aes.Key = aesKey;
                 aes.IV = (byte[])aesKey.Clone();
                 #endregion
+
+                //TODO: set compression request before encryption
+
+                MinecraftConnection l_conn = new(conn, aes); // send to server
+
 
                 //AuthenticationInfo info = new() // Can't be bothered to implement this
                 //{
