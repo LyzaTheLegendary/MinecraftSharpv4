@@ -7,9 +7,9 @@ namespace Cryptography
     public static class MinecraftSha
     {
         // https://gist.github.com/ammaraskar/7b4a3f73bee9dc4136539644a0f27e63
-        public static string MinecraftShaDigest(string input)
+        public static string MinecraftShaDigest(byte[] input)
         {
-            var hash = new SHA1Managed().ComputeHash(Encoding.UTF8.GetBytes(input));
+            var hash = new SHA1Managed().ComputeHash(input);
             // Reverse the bytes since BigInteger uses little endian
             Array.Reverse(hash);
 

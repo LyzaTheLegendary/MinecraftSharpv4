@@ -15,16 +15,16 @@ namespace MinecraftSharp.Classes.Utils
             
             return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
         }
-        //public static ApiResonse Post<T>(string url, T data)
-        //{
-        //    HttpClient httpClient = new HttpClient();
-        //    HttpContent content = new StringContent(JsonConvert.SerializeObject(data), Encoding.ASCII, "application/json");
-            
-        //    HttpResponseMessage response = httpClient.PostAsync(url, content).GetAwaiter().GetResult();
-        //    if (response.StatusCode == HttpStatusCode.NoContent)
-        //        return new ApiResonse { name = "none", result = "none" };
+        public static ErrorResponse Post<T>(string url, T data)
+        {
+            HttpClient httpClient = new HttpClient();
+            HttpContent content = new StringContent(JsonConvert.SerializeObject(data), Encoding.ASCII, "application/json");
 
-        //    return JsonConvert.DeserializeObject<ApiResonse>(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
-        //}
+            HttpResponseMessage response = httpClient.PostAsync(url, content).GetAwaiter().GetResult();
+            if (response.StatusCode == HttpStatusCode.NoContent)
+                return new ErrorResponse { error = "none", path = "none" };
+
+            return JsonConvert.DeserializeObject<ErrorResponse>(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
+        }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Json.ServerInfo;
 using Minecraft.Binary;
 
-namespace MinecraftSharp.Classes.Network.Packets
+namespace MinecraftSharp.Classes.Network.Packets.Handshake
 {
 
     public class StatusResponse : PacketStream
@@ -38,7 +38,7 @@ namespace MinecraftSharp.Classes.Network.Packets
                 previewsChat = true
             };
             this.WriteLebString(serverInfo.GetJson());
-            this.Flush();
+            Flush();
         }
     }
 }

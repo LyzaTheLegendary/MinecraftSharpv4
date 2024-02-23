@@ -16,6 +16,7 @@ namespace MinecraftSharp.Classes.Network
         }
         public mAddr GetAddr() => m_address;
         public Stream GetStream() => m_netStream;
+        public Socket GetSock() => m_socket;
         public void Drop()
         {
             m_socket.Close();

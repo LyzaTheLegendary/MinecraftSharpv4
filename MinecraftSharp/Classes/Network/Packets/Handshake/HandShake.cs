@@ -1,6 +1,6 @@
 ﻿using Minecraft.Binary;
 
-namespace MinecraftSharp.Classes.Network.Packets
+namespace MinecraftSharp.Classes.Network.Packets.Handshake
 {
     public readonly struct HandShake
     {

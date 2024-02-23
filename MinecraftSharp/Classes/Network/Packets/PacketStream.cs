@@ -10,21 +10,21 @@ namespace MinecraftSharp.Classes.Network.Packets
 
         public override bool CanWrite => true;
 
-        public override long Length => data.LongCount();
+        public override long Length => m_data.LongCount();
 
         public override long Position { get => m_position; set => m_position = value; }
-        private long m_position;
+        private long m_position = 0;
 
-        private List<byte> data = new List<byte>();
+        protected List<byte> m_data = new();
 
         public override void Flush()
         {
-            int size = data.Count;
-            List<byte> content = data;
-            data = new List<byte>(size);
+            int size = m_data.Count;
+            List<byte> content = m_data;
+            m_data = new List<byte>(size);
             this.WriteLeb32(size);
 
-            data.AddRange(content);
+            m_data.AddRange(content);
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -44,8 +44,8 @@ namespace MinecraftSharp.Classes.Network.Packets
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            data.AddRange(buffer);
+            m_data.AddRange(buffer);
         }
-        public byte[] GetData() => data.ToArray();
+        public virtual byte[] GetData() => m_data.ToArray();
     }
 }

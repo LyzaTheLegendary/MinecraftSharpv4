@@ -9,8 +9,8 @@ namespace MinecraftSharp.Classes.Network.Packets
 {
     public class KickResponse : PacketStream
     {
-        public KickResponse(string reason) {
-            this.WriteLeb32(0);
+        public KickResponse(string reason, int id = 0) {
+            this.WriteLeb32(id);
             this.WriteLebString($"{{\r\n    \"text\": \"{reason}\"\r\n}}");
             this.Flush();
         }

@@ -1,10 +1,14 @@
-﻿using System.IO;
+﻿using MinecraftSharp.Classes.Network.Packets;
+using System.IO;
 using System.Text;
 
 namespace Minecraft.Binary
 {
     public static class MinecraftEncoding
     {
+        public static double ReadLebDouble(this Stream stream)
+            => (double)(stream.ReadLEB32() / 32.0D);
+
         public static int ReadLEB32(this Stream stream)
         {
             int value = 0, position = 0, currentByte;
@@ -58,6 +62,9 @@ namespace Minecraft.Binary
                 stream.WriteByte(currentByte);
             } while (value > 0);
         }
+        public static void WriteLebDouble(this Stream stream, double value)
+            => stream.WriteLeb32((int)(value * 32.0D));
+        
         public static void WriteLebString(this Stream stream, string value)
         {
             stream.WriteLeb32(value.Length);
@@ -68,6 +75,15 @@ namespace Minecraft.Binary
         {
             stream.WriteLeb32(data.Length);
             stream.Write(data, 0, data.Length);
+        }
+        public static Packet GetPacket(this Stream stream)
+        {
+            int size = stream.ReadLEB32();
+            //int id = stream.ReadLEB32();
+            byte[] data = new byte[size];
+            stream.ReadExactly(data, 0, size);
+
+            return new Packet(data);
         }
     }
 }

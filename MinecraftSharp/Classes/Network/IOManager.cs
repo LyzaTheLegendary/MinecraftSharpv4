@@ -1,6 +1,7 @@
 ﻿using Minecraft.Binary;
 using MinecraftSharp.Classes.Display;
 using MinecraftSharp.Classes.Network.Packets;
+using MinecraftSharp.Classes.Network.Packets.Handshake;
 using MinecraftSharp.Classes.Utils;
 using System.Collections.Concurrent;
 using System.Net;
@@ -18,7 +19,7 @@ namespace MinecraftSharp.Classes.Network
 
         private static IdPool m_pool = new();
         //private static IdList m_connections = new();
-        private static ConcurrentDictionary<uint, ConnectionTag> m_connections = new();
+        private static ConcurrentDictionary<uint, McClient> m_connections = new();
         private static CancellationTokenSource m_cts = new();
         private static bool m_accepting = true;
 
@@ -52,7 +53,7 @@ namespace MinecraftSharp.Classes.Network
             }, m_cts.Token);
 
         }
-        public static void AddConnection(ConnectionTag conn) 
+        public static void AddConnection(McClient conn) 
             => m_connections[(uint)conn.Id] = conn;
         public static void DelConnection(uint id)
             => m_connections.Remove(id, out _);
